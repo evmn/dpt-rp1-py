@@ -7,9 +7,53 @@ import sys
 import json
 import os
 import re
-
+from collections import defaultdict
 from pathlib import Path
 from dptrp1.dptrp1 import DigitalPaper
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+##Convert path lists to tree structure
+##Reference: https://stackoverflow.com/a/8496834
+FILE_MARKER = '<files>'
+def attach(branch, trunk):
+    parts = branch.split('/', 1)
+    if len(parts) == 1:  # branch is a file
+        trunk[FILE_MARKER].append(parts[0])
+    else:
+        node, others = parts
+        if node not in trunk:
+            trunk[node] = defaultdict(dict, ((FILE_MARKER, []),))
+        attach(others, trunk[node])
+    
+def prettify(d, indent=0):
+    for key, value in d.items():
+#        print('********:', value)
+        if key != FILE_MARKER:
+            if str(key) != 'Document':
+                broot = 1
+            else:
+                broot = 0 
+            print('   ' * (indent+2) + '└───' * (broot)  + str(key))
+            if value:
+                if isinstance(value, dict):
+                    prettify(value, indent+2)
+                else:
+                    for folders in value[0:len(value)-1]:
+                        print('   ' * (indent+2) + '├───' + str(folders))
+                    print('   ' * (indent+2) + '└───' + str(value[len(value)-1]))
+        else:
+            if value:
+                for docs in value[0:len(value)-1]:
+                    print('   ' * (indent+2) + '├───' + str(docs))
+                print('   ' * (indent+2) + '└───' + str(value[len(value)-1]))
+
+def path2tree(pathlists):
+    main_dict = defaultdict(dict, ((FILE_MARKER, []),))
+    for line in pathlists:
+        attach(line, main_dict)
+    #print(main_dict)
+    prettify(main_dict)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def do_screenshot(d, filename):
     pic = d.take_screenshot()
@@ -18,8 +62,13 @@ def do_screenshot(d, filename):
 
 def do_list_documents(d):
     data = d.list_documents()
+    list_doc = []
     for d in data:
-        print(d['entry_path'].replace("Document","----->: "))
+        list_doc.extend([d['entry_path']])
+    print(path2tree(list_doc))
+#    for doc in sorted(list_doc):
+#        print(doc)
+#        print(d['entry_path'].replace("Document","----->: "))
 
 def do_list_folders(d, *remote_paths):
     data = d.list_all()
@@ -177,4 +226,3 @@ if __name__ == "__main__":
         dp.authenticate(client_id, key)
 
     commands[args.command](dp, *args.command_args)
-
