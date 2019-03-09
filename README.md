@@ -24,6 +24,21 @@ Note that the root path for DPT-RP1 is `Document/`.
 - Example command to download a document `file.pdf` from the root folder ("System Storage") of DPT-RP1: `dptrp1 --client-id ~/deviceid.dat --key ~/privatekey.dat --addr 10.0.0.4 download Document/file.pdf ./file.pdf`
 - Example command to upload a document `file.pdf` to a folder named `Articles` on DPT-RP1: `dptrp1 --client-id ~/deviceid.dat --key ~/privatekey.dat --addr 10.0.0.4 upload ./file.pdf Document/Articles/file.pdf`
 
+#### Update 2019-02-09
+
+**I've set default `client-id`, `key` and `addr` in `bin/dptrp1` file. Now you can operate with simpler commands**
+
+ - List Documents: ` dptrp1 ls`
+ - List Folders: `dptrp1 ldir` 
+ - Upload File: `dptrp1 push /local/path/file.pdf dptrp1/folder/`
+ The default upload path is `Document/`, you only need to specify DPT-RP1 folder if you want upload to other folder.
+ - Download File: `dptrp1 pull dptrp1/file.pdf local/path/`
+ - Delete File: `dptrp1 rm dptrp1/file.pdf` 
+ - Make New Folder: `dptrp1 mkdir dptrp1/folder/`
+
+
+There seems no way to delete folder and change file name.
+
 ### Registering the DPT-RP1
 
 The DPT-RP1 uses SSL encryption to communicate with the computer.  This

@@ -19,21 +19,25 @@ def do_screenshot(d, filename):
 def do_list_documents(d):
     data = d.list_documents()
     for d in data:
-        print(d['entry_path'])
+        print(d['entry_path'].replace("Document","----->: "))
 
 def do_list_folders(d, *remote_paths):
     data = d.list_all()
+    print(data)
     for d in data:
         if d['entry_type'] == 'folder':
-            print(d['entry_path'] + '/')
+            print(d['entry_path'].replace("Document","----->: ") + '/')
 
 def do_upload(d, local_path, remote_path=''):
     if not remote_path:
         remote_path = 'Document/' + os.path.basename(local_path)
+    else:
+        remote_path = 'Document/' + remote_path + local_path
     with open(local_path, 'rb') as fh:
         d.upload(fh, remote_path)
 
 def do_download(d, remote_path, local_path):
+    remote_path = 'Document/' + remote_path
     data = d.download(remote_path)
 
     if os.path.isdir(local_path):
@@ -48,10 +52,10 @@ def do_update_firmware(d, local_path):
         d.update_firmware(fwfh)
 
 def do_delete_document(d, remote_path):
-    data = d.delete_document(remote_path)
+    data = d.delete_document('Document/'+remote_path)
 
 def do_new_folder(d, remote_path):
-    d.new_folder(remote_path)
+    d.new_folder('Document/'+remote_path)
 
 def do_wifi_list(d):
     data = d.wifi_list()
@@ -96,19 +100,20 @@ if __name__ == "__main__":
     elif sys.platform.startswith('windows'):
         dpapp = "AppData/Roaming" / dpapp
     elif sys.platform.startswith('linux'):
-        dpapp = ".dpapp"
+        dpapp = ".Digital_Paper_App"#deviceid.dat and privatekey.dat are saved in ~/.Digital_Paper_App
+        ipaddr ="192.168.1.116" #Default IP Address
     dpapp = Path.home() / dpapp
     deviceid = str(dpapp / "deviceid.dat")
     privatekey = str(dpapp / "privatekey.dat")
 
     commands = {
         "screenshot": do_screenshot,
-        "list-documents" : do_list_documents,
-        "upload" : do_upload,
-        "download" : do_download,
-        "delete" : do_delete_document,
-        "new-folder" : do_new_folder,
-        "list-folders" : do_list_folders,
+        "ls" : do_list_documents,
+        "push" : do_upload,
+        "pull" : do_download,
+        "rm" : do_delete_document,
+        "mkdir" : do_new_folder,
+        "ldir" : do_list_folders,
         "wifi-list": do_wifi_list,
         "wifi-scan": do_wifi_scan,
         "wifi-add": do_add_wifi,
@@ -131,6 +136,7 @@ if __name__ == "__main__":
                 default = privatekey,
                 required = not os.path.isfile(privatekey))
         p.add_argument('--addr', 
+		default = ipaddr,
                 help = "Hostname or IP address of the device")
         p.add_argument('command', 
                 help = 'Command to run', 
