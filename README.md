@@ -34,10 +34,10 @@ Note that the root path for DPT-RP1 is `Document/`.
  The default upload path is `Document/`, you only need to specify DPT-RP1 folder if you want upload to other folder.
  - Download File: `dptrp1 pull dptrp1/file.pdf local/path/`
  - Delete File: `dptrp1 rm dptrp1/file.pdf` 
+ - Delete Folder: `dptrp1 rm tmp/`
  - Make New Folder: `dptrp1 mkdir dptrp1/folder/`
 
-
-There seems no way to delete folder and change file name.
+There seems no way to change file/folder name.
 
 ### Registering the DPT-RP1
 

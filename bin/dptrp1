@@ -54,6 +54,9 @@ def do_update_firmware(d, local_path):
 def do_delete_document(d, remote_path):
     data = d.delete_document('Document/'+remote_path)
 
+def do_delete_folder(d, remote_path):
+    data = d.delete_folder('Document/'+remote_path)
+
 def do_new_folder(d, remote_path):
     d.new_folder('Document/'+remote_path)
 
@@ -113,6 +116,7 @@ if __name__ == "__main__":
         "pull" : do_download,
         "rm" : do_delete_document,
         "mkdir" : do_new_folder,
+        "rmdir" : do_delete_folder,
         "ldir" : do_list_folders,
         "wifi-list": do_wifi_list,
         "wifi-scan": do_wifi_scan,
