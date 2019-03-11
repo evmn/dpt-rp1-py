@@ -7,6 +7,7 @@ import sys
 import json
 import os
 import re
+from collections import OrderedDict
 from collections import defaultdict
 from pathlib import Path
 from dptrp1.dptrp1 import DigitalPaper
@@ -26,26 +27,30 @@ def attach(branch, trunk):
         attach(others, trunk[node])
     
 def prettify(d, indent=0):
-    for key, value in d.items():
-#        print('********:', value)
-        if key != FILE_MARKER:
+    file_middle = '├───'
+    file_last = '└───'
+    parent_middle = '    '
+    parent_last = '│   '
+    if len(d) >= 2:
+        endPoint = False
+    else:
+        endPoint = True
+    for key, value in OrderedDict(sorted(d.items())).items():
+        if key != FILE_MARKER:#Folders
             if str(key) != 'Document':
-                broot = 1
+                print('   ' * (indent) + file_last + str(key))
             else:
-                broot = 0 
-            print('   ' * (indent+2) + '└───' * (broot)  + str(key))
-            if value:
-                if isinstance(value, dict):
-                    prettify(value, indent+2)
-                else:
-                    for folders in value[0:len(value)-1]:
-                        print('   ' * (indent+2) + '├───' + str(folders))
-                    print('   ' * (indent+2) + '└───' + str(value[len(value)-1]))
+                print('\nDocument/')
+            if value and isinstance(value, dict):#Books in sub-directory
+                prettify(value, indent+2)
         else:
-            if value:
+            if value:#pdf documents
                 for docs in value[0:len(value)-1]:
-                    print('   ' * (indent+2) + '├───' + str(docs))
-                print('   ' * (indent+2) + '└───' + str(value[len(value)-1]))
+                    print('   ' * (indent) + file_middle + str(docs))
+                if endPoint:
+                    print('   ' * (indent) + file_last + str(value[len(value)-1]))
+                else:
+                    print('   ' * (indent) + file_middle + str(value[len(value)-1]))
 
 def path2tree(pathlists):
     main_dict = defaultdict(dict, ((FILE_MARKER, []),))
@@ -72,7 +77,7 @@ def do_list_documents(d):
 
 def do_list_folders(d, *remote_paths):
     data = d.list_all()
-    print(data)
+    #print(data)
     for d in data:
         if d['entry_type'] == 'folder':
             print(d['entry_path'].replace("Document","----->: ") + '/')
